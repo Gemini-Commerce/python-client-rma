@@ -6,7 +6,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**code**| [**OrderDataSubtotalCode**](OrderDataSubtotalCode.md) |  for more information please, see Model/OrderDataSubtotalCode.php  | [optional]
+**code**| [**OrderDataSubtotalCode**](OrderDataSubtotalCode.md) |  for more information please, see Model/OrderDataSubtotalCode.php  | [optional] [default to OrderDataSubtotalCode.UNKNOWN]
 **value**| [**RmaMoney**](RmaMoney.md) |   | [optional]
 
 

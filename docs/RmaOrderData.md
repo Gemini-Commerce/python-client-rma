@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 **channel**| **str** |   | [optional]
 **market**| **str** |   | [optional]
 **items**| [**List[RmaOrderDataItem]**](RmaOrderDataItem.md) |   | [optional]
-**currency**| [**RmaCurrency**](RmaCurrency.md) |  for more information please, see Model/RmaCurrency.php  | [optional]
+**currency**| [**RmaCurrency**](RmaCurrency.md) |  for more information please, see Model/RmaCurrency.php  | [optional] [default to RmaCurrency.XXX]
 **subtotals**| [**Dict[str, OrderDataSubtotal]**](OrderDataSubtotal.md) |   | [optional]
 **totals**| [**Dict[str, OrderDataTotal]**](OrderDataTotal.md) |   | [optional]
 

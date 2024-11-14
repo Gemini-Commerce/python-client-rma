@@ -19,17 +19,14 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from pydantic import BaseModel, StrictStr
-from pydantic import Field
 from rma.models.order_data_subtotal import OrderDataSubtotal
 from rma.models.order_data_total import OrderDataTotal
 from rma.models.rma_currency import RmaCurrency
 from rma.models.rma_order_data_item import RmaOrderDataItem
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
+from typing import Optional, Set
+from typing_extensions import Self
 
 class RmaOrderData(BaseModel):
     """
@@ -43,16 +40,17 @@ class RmaOrderData(BaseModel):
     channel: Optional[StrictStr] = None
     market: Optional[StrictStr] = None
     items: Optional[List[RmaOrderDataItem]] = None
-    currency: Optional[RmaCurrency] = None
+    currency: Optional[RmaCurrency] = RmaCurrency.XXX
     subtotals: Optional[Dict[str, OrderDataSubtotal]] = None
     totals: Optional[Dict[str, OrderDataTotal]] = None
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["createdAt", "updatedAt", "grn", "number", "status", "channel", "market", "items", "currency", "subtotals", "totals"]
 
-    model_config = {
-        "populate_by_name": True,
-        "validate_assignment": True,
-        "protected_namespaces": (),
-    }
+    model_config = ConfigDict(
+        populate_by_name=True,
+        validate_assignment=True,
+        protected_namespaces=(),
+    )
 
 
     def to_str(self) -> str:
@@ -65,7 +63,7 @@ class RmaOrderData(BaseModel):
         return json.dumps(self.to_dict())
 
     @classmethod
-    def from_json(cls, json_str: str) -> Self:
+    def from_json(cls, json_str: str) -> Optional[Self]:
         """Create an instance of RmaOrderData from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
@@ -78,38 +76,47 @@ class RmaOrderData(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
+        excluded_fields: Set[str] = set([
+            "additional_properties",
+        ])
+
         _dict = self.model_dump(
             by_alias=True,
-            exclude={
-            },
+            exclude=excluded_fields,
             exclude_none=True,
         )
         # override the default output from pydantic by calling `to_dict()` of each item in items (list)
         _items = []
         if self.items:
-            for _item in self.items:
-                if _item:
-                    _items.append(_item.to_dict())
+            for _item_items in self.items:
+                if _item_items:
+                    _items.append(_item_items.to_dict())
             _dict['items'] = _items
         # override the default output from pydantic by calling `to_dict()` of each value in subtotals (dict)
         _field_dict = {}
         if self.subtotals:
-            for _key in self.subtotals:
-                if self.subtotals[_key]:
-                    _field_dict[_key] = self.subtotals[_key].to_dict()
+            for _key_subtotals in self.subtotals:
+                if self.subtotals[_key_subtotals]:
+                    _field_dict[_key_subtotals] = self.subtotals[_key_subtotals].to_dict()
             _dict['subtotals'] = _field_dict
         # override the default output from pydantic by calling `to_dict()` of each value in totals (dict)
         _field_dict = {}
         if self.totals:
-            for _key in self.totals:
-                if self.totals[_key]:
-                    _field_dict[_key] = self.totals[_key].to_dict()
+            for _key_totals in self.totals:
+                if self.totals[_key_totals]:
+                    _field_dict[_key_totals] = self.totals[_key_totals].to_dict()
             _dict['totals'] = _field_dict
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: Dict) -> Self:
+    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
         """Create an instance of RmaOrderData from a dict"""
         if obj is None:
             return None
@@ -125,21 +132,26 @@ class RmaOrderData(BaseModel):
             "status": obj.get("status"),
             "channel": obj.get("channel"),
             "market": obj.get("market"),
-            "items": [RmaOrderDataItem.from_dict(_item) for _item in obj.get("items")] if obj.get("items") is not None else None,
-            "currency": obj.get("currency"),
+            "items": [RmaOrderDataItem.from_dict(_item) for _item in obj["items"]] if obj.get("items") is not None else None,
+            "currency": obj.get("currency") if obj.get("currency") is not None else RmaCurrency.XXX,
             "subtotals": dict(
                 (_k, OrderDataSubtotal.from_dict(_v))
-                for _k, _v in obj.get("subtotals").items()
+                for _k, _v in obj["subtotals"].items()
             )
             if obj.get("subtotals") is not None
             else None,
             "totals": dict(
                 (_k, OrderDataTotal.from_dict(_v))
-                for _k, _v in obj.get("totals").items()
+                for _k, _v in obj["totals"].items()
             )
             if obj.get("totals") is not None
             else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

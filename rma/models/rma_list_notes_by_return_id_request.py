@@ -18,15 +18,11 @@ import pprint
 import re  # noqa: F401
 import json
 
-
+from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from pydantic import BaseModel, StrictInt, StrictStr
-from pydantic import Field
 from rma.models.rma_list_notes_by_return_id_request_sort import RmaListNotesByReturnIdRequestSort
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
+from typing import Optional, Set
+from typing_extensions import Self
 
 class RmaListNotesByReturnIdRequest(BaseModel):
     """
@@ -37,13 +33,14 @@ class RmaListNotesByReturnIdRequest(BaseModel):
     page_size: Optional[StrictInt] = Field(default=None, alias="pageSize")
     page_token: Optional[StrictStr] = Field(default=None, alias="pageToken")
     sorts: Optional[List[RmaListNotesByReturnIdRequestSort]] = None
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["tenantId", "returnId", "pageSize", "pageToken", "sorts"]
 
-    model_config = {
-        "populate_by_name": True,
-        "validate_assignment": True,
-        "protected_namespaces": (),
-    }
+    model_config = ConfigDict(
+        populate_by_name=True,
+        validate_assignment=True,
+        protected_namespaces=(),
+    )
 
 
     def to_str(self) -> str:
@@ -56,7 +53,7 @@ class RmaListNotesByReturnIdRequest(BaseModel):
         return json.dumps(self.to_dict())
 
     @classmethod
-    def from_json(cls, json_str: str) -> Self:
+    def from_json(cls, json_str: str) -> Optional[Self]:
         """Create an instance of RmaListNotesByReturnIdRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
@@ -69,24 +66,33 @@ class RmaListNotesByReturnIdRequest(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
+        excluded_fields: Set[str] = set([
+            "additional_properties",
+        ])
+
         _dict = self.model_dump(
             by_alias=True,
-            exclude={
-            },
+            exclude=excluded_fields,
             exclude_none=True,
         )
         # override the default output from pydantic by calling `to_dict()` of each item in sorts (list)
         _items = []
         if self.sorts:
-            for _item in self.sorts:
-                if _item:
-                    _items.append(_item.to_dict())
+            for _item_sorts in self.sorts:
+                if _item_sorts:
+                    _items.append(_item_sorts.to_dict())
             _dict['sorts'] = _items
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: Dict) -> Self:
+    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
         """Create an instance of RmaListNotesByReturnIdRequest from a dict"""
         if obj is None:
             return None
@@ -99,8 +105,13 @@ class RmaListNotesByReturnIdRequest(BaseModel):
             "returnId": obj.get("returnId"),
             "pageSize": obj.get("pageSize"),
             "pageToken": obj.get("pageToken"),
-            "sorts": [RmaListNotesByReturnIdRequestSort.from_dict(_item) for _item in obj.get("sorts")] if obj.get("sorts") is not None else None
+            "sorts": [RmaListNotesByReturnIdRequestSort.from_dict(_item) for _item in obj["sorts"]] if obj.get("sorts") is not None else None
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

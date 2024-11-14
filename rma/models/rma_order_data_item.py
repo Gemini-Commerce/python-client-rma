@@ -18,15 +18,11 @@ import pprint
 import re  # noqa: F401
 import json
 
-
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictFloat, StrictInt, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
-from pydantic import BaseModel, StrictBool, StrictFloat, StrictInt, StrictStr
-from pydantic import Field
 from rma.models.rma_money import RmaMoney
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
+from typing import Optional, Set
+from typing_extensions import Self
 
 class RmaOrderDataItem(BaseModel):
     """
@@ -55,13 +51,14 @@ class RmaOrderDataItem(BaseModel):
     shipment_info_reference: Optional[StrictStr] = Field(default=None, alias="shipmentInfoReference")
     promotion_grn: Optional[List[StrictStr]] = Field(default=None, alias="promotionGrn")
     product_is_virtual: Optional[StrictBool] = Field(default=None, alias="productIsVirtual")
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["id", "productGrn", "qtyOrdered", "qtyCommitted", "qtyShipped", "unitSalePrice", "unitListPrice", "unitVatAmount", "rowSalePrice", "rowListPrice", "rowVatAmount", "vatPercentage", "vatInaccurate", "vatCalculated", "productName", "productCode", "productSku", "productOptions", "productImg", "productData", "shipmentInfoReference", "promotionGrn", "productIsVirtual"]
 
-    model_config = {
-        "populate_by_name": True,
-        "validate_assignment": True,
-        "protected_namespaces": (),
-    }
+    model_config = ConfigDict(
+        populate_by_name=True,
+        validate_assignment=True,
+        protected_namespaces=(),
+    )
 
 
     def to_str(self) -> str:
@@ -74,7 +71,7 @@ class RmaOrderDataItem(BaseModel):
         return json.dumps(self.to_dict())
 
     @classmethod
-    def from_json(cls, json_str: str) -> Self:
+    def from_json(cls, json_str: str) -> Optional[Self]:
         """Create an instance of RmaOrderDataItem from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
@@ -87,11 +84,15 @@ class RmaOrderDataItem(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
+        excluded_fields: Set[str] = set([
+            "additional_properties",
+        ])
+
         _dict = self.model_dump(
             by_alias=True,
-            exclude={
-            },
+            exclude=excluded_fields,
             exclude_none=True,
         )
         # override the default output from pydantic by calling `to_dict()` of unit_sale_price
@@ -112,10 +113,15 @@ class RmaOrderDataItem(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of row_vat_amount
         if self.row_vat_amount:
             _dict['rowVatAmount'] = self.row_vat_amount.to_dict()
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: Dict) -> Self:
+    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
         """Create an instance of RmaOrderDataItem from a dict"""
         if obj is None:
             return None
@@ -129,12 +135,12 @@ class RmaOrderDataItem(BaseModel):
             "qtyOrdered": obj.get("qtyOrdered"),
             "qtyCommitted": obj.get("qtyCommitted"),
             "qtyShipped": obj.get("qtyShipped"),
-            "unitSalePrice": RmaMoney.from_dict(obj.get("unitSalePrice")) if obj.get("unitSalePrice") is not None else None,
-            "unitListPrice": RmaMoney.from_dict(obj.get("unitListPrice")) if obj.get("unitListPrice") is not None else None,
-            "unitVatAmount": RmaMoney.from_dict(obj.get("unitVatAmount")) if obj.get("unitVatAmount") is not None else None,
-            "rowSalePrice": RmaMoney.from_dict(obj.get("rowSalePrice")) if obj.get("rowSalePrice") is not None else None,
-            "rowListPrice": RmaMoney.from_dict(obj.get("rowListPrice")) if obj.get("rowListPrice") is not None else None,
-            "rowVatAmount": RmaMoney.from_dict(obj.get("rowVatAmount")) if obj.get("rowVatAmount") is not None else None,
+            "unitSalePrice": RmaMoney.from_dict(obj["unitSalePrice"]) if obj.get("unitSalePrice") is not None else None,
+            "unitListPrice": RmaMoney.from_dict(obj["unitListPrice"]) if obj.get("unitListPrice") is not None else None,
+            "unitVatAmount": RmaMoney.from_dict(obj["unitVatAmount"]) if obj.get("unitVatAmount") is not None else None,
+            "rowSalePrice": RmaMoney.from_dict(obj["rowSalePrice"]) if obj.get("rowSalePrice") is not None else None,
+            "rowListPrice": RmaMoney.from_dict(obj["rowListPrice"]) if obj.get("rowListPrice") is not None else None,
+            "rowVatAmount": RmaMoney.from_dict(obj["rowVatAmount"]) if obj.get("rowVatAmount") is not None else None,
             "vatPercentage": obj.get("vatPercentage"),
             "vatInaccurate": obj.get("vatInaccurate"),
             "vatCalculated": obj.get("vatCalculated"),
@@ -148,6 +154,11 @@ class RmaOrderDataItem(BaseModel):
             "promotionGrn": obj.get("promotionGrn"),
             "productIsVirtual": obj.get("productIsVirtual")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 

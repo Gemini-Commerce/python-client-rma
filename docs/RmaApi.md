@@ -29,8 +29,6 @@ Add a note to an RMA
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_add_note_request import RmaAddNoteRequest
 from rma.models.rma_note_response import RmaNoteResponse
@@ -105,8 +103,6 @@ Approve a return
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_approve_return_request import RmaApproveReturnRequest
 from rma.models.rpc_status import RpcStatus
@@ -182,8 +178,6 @@ Cancel a return
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_cancel_return_request import RmaCancelReturnRequest
 from rma.rest import ApiException
@@ -257,8 +251,6 @@ Confirm return approve items
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_confirm_return_approve_items_request import RmaConfirmReturnApproveItemsRequest
 from rma.rest import ApiException
@@ -332,8 +324,6 @@ Create a return
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_create_return_request import RmaCreateReturnRequest
 from rma.models.rma_return_response import RmaReturnResponse
@@ -408,8 +398,6 @@ Delete a note from an RMA
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_delete_note_request import RmaDeleteNoteRequest
 from rma.rest import ApiException
@@ -483,8 +471,6 @@ Edit a note on an RMA
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_edit_note_request import RmaEditNoteRequest
 from rma.models.rma_note_response import RmaNoteResponse
@@ -559,8 +545,6 @@ Get a return
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_get_return_request import RmaGetReturnRequest
 from rma.models.rma_return_response import RmaReturnResponse
@@ -635,8 +619,6 @@ List notes by return id
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_list_notes_by_return_id_request import RmaListNotesByReturnIdRequest
 from rma.models.rma_list_notes_by_return_id_response import RmaListNotesByReturnIdResponse
@@ -711,8 +693,6 @@ List returns
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_list_returns_request import RmaListReturnsRequest
 from rma.models.rma_list_returns_response import RmaListReturnsResponse
@@ -787,8 +767,6 @@ Refund a return
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_refund_return_request import RmaRefundReturnRequest
 from rma.rest import ApiException
@@ -862,8 +840,6 @@ Reject a return
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_reject_return_request import RmaRejectReturnRequest
 from rma.rest import ApiException
@@ -937,8 +913,6 @@ Set received items
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_set_received_items_request import RmaSetReceivedItemsRequest
 from rma.rest import ApiException
@@ -1012,8 +986,6 @@ Skip a return status
 
 
 ```python
-import time
-import os
 import rma
 from rma.models.rma_skip_return_status_request import RmaSkipReturnStatusRequest
 from rma.rest import ApiException

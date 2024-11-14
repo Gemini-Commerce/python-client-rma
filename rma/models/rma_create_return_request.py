@@ -18,18 +18,14 @@ import pprint
 import re  # noqa: F401
 import json
 
-
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
-from pydantic import BaseModel, StrictBool, StrictStr
-from pydantic import Field
 from rma.models.create_return_request_product import CreateReturnRequestProduct
 from rma.models.rma_customer_info import RmaCustomerInfo
 from rma.models.rma_postal_address import RmaPostalAddress
 from rma.models.rma_refund_method import RmaRefundMethod
-try:
-    from typing import Self
-except ImportError:
-    from typing_extensions import Self
+from typing import Optional, Set
+from typing_extensions import Self
 
 class RmaCreateReturnRequest(BaseModel):
     """
@@ -44,13 +40,14 @@ class RmaCreateReturnRequest(BaseModel):
     customer_info: Optional[RmaCustomerInfo] = Field(default=None, alias="customerInfo")
     return_address: Optional[RmaPostalAddress] = Field(default=None, alias="returnAddress")
     note: Optional[StrictStr] = None
+    additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["tenantId", "orderGrn", "products", "preferredRefundMethod", "refundShippingCost", "refundPaymentCost", "customerInfo", "returnAddress", "note"]
 
-    model_config = {
-        "populate_by_name": True,
-        "validate_assignment": True,
-        "protected_namespaces": (),
-    }
+    model_config = ConfigDict(
+        populate_by_name=True,
+        validate_assignment=True,
+        protected_namespaces=(),
+    )
 
 
     def to_str(self) -> str:
@@ -63,7 +60,7 @@ class RmaCreateReturnRequest(BaseModel):
         return json.dumps(self.to_dict())
 
     @classmethod
-    def from_json(cls, json_str: str) -> Self:
+    def from_json(cls, json_str: str) -> Optional[Self]:
         """Create an instance of RmaCreateReturnRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
@@ -76,19 +73,23 @@ class RmaCreateReturnRequest(BaseModel):
         * `None` is only added to the output dict for nullable fields that
           were set at model initialization. Other fields with value `None`
           are ignored.
+        * Fields in `self.additional_properties` are added to the output dict.
         """
+        excluded_fields: Set[str] = set([
+            "additional_properties",
+        ])
+
         _dict = self.model_dump(
             by_alias=True,
-            exclude={
-            },
+            exclude=excluded_fields,
             exclude_none=True,
         )
         # override the default output from pydantic by calling `to_dict()` of each item in products (list)
         _items = []
         if self.products:
-            for _item in self.products:
-                if _item:
-                    _items.append(_item.to_dict())
+            for _item_products in self.products:
+                if _item_products:
+                    _items.append(_item_products.to_dict())
             _dict['products'] = _items
         # override the default output from pydantic by calling `to_dict()` of customer_info
         if self.customer_info:
@@ -96,10 +97,15 @@ class RmaCreateReturnRequest(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of return_address
         if self.return_address:
             _dict['returnAddress'] = self.return_address.to_dict()
+        # puts key-value pairs in additional_properties in the top level
+        if self.additional_properties is not None:
+            for _key, _value in self.additional_properties.items():
+                _dict[_key] = _value
+
         return _dict
 
     @classmethod
-    def from_dict(cls, obj: Dict) -> Self:
+    def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
         """Create an instance of RmaCreateReturnRequest from a dict"""
         if obj is None:
             return None
@@ -110,14 +116,19 @@ class RmaCreateReturnRequest(BaseModel):
         _obj = cls.model_validate({
             "tenantId": obj.get("tenantId"),
             "orderGrn": obj.get("orderGrn"),
-            "products": [CreateReturnRequestProduct.from_dict(_item) for _item in obj.get("products")] if obj.get("products") is not None else None,
-            "preferredRefundMethod": obj.get("preferredRefundMethod"),
+            "products": [CreateReturnRequestProduct.from_dict(_item) for _item in obj["products"]] if obj.get("products") is not None else None,
+            "preferredRefundMethod": obj.get("preferredRefundMethod") if obj.get("preferredRefundMethod") is not None else RmaRefundMethod.UNKNOWN,
             "refundShippingCost": obj.get("refundShippingCost"),
             "refundPaymentCost": obj.get("refundPaymentCost"),
-            "customerInfo": RmaCustomerInfo.from_dict(obj.get("customerInfo")) if obj.get("customerInfo") is not None else None,
-            "returnAddress": RmaPostalAddress.from_dict(obj.get("returnAddress")) if obj.get("returnAddress") is not None else None,
+            "customerInfo": RmaCustomerInfo.from_dict(obj["customerInfo"]) if obj.get("customerInfo") is not None else None,
+            "returnAddress": RmaPostalAddress.from_dict(obj["returnAddress"]) if obj.get("returnAddress") is not None else None,
             "note": obj.get("note")
         })
+        # store additional fields in additional_properties
+        for _key in obj.keys():
+            if _key not in cls.__properties:
+                _obj.additional_properties[_key] = obj.get(_key)
+
         return _obj
 
 
